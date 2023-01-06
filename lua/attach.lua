@@ -20,7 +20,7 @@ local attach_to_buf = function(command, client, clientBuf)
 	local name, path = client.name, "/" .. client.path
 
 	local auGroup = v.nvim_create_augroup("AutoRun " .. name, { clear = true })
-	
+
 	v.nvim_create_autocmd({ "BufWritePost" }, {
 		desc = "Creates a buffer to show what's executed on save for the given buf as client",
 		group = auGroup,
