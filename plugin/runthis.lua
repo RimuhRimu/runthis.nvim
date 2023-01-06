@@ -1,17 +1,15 @@
-local v =  vim.api
+local v = vim.api
 
 -- TODO: add the option to opt for not deleting buff content on save and just append it instead
 -- TODO: implementtion with different shells
 -- TODO: ask for the shell
--- 
+--
 -- TODO: implement a pre-set of commands e.g {python3,node,deno,lua,...}
 
 local function prompt()
-	
 	local function getBufList()
 		local bufList = {}
 		for _, buf in pairs(v.nvim_list_bufs()) do
-			
 			local bufInList = v.nvim_buf_get_option(buf, "buflisted")
 			local bufPath = string.sub(v.nvim_buf_get_name(buf), 2, -1)
 
