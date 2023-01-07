@@ -4,3 +4,7 @@ globals = {
 }
 
 files["lua/attach.lua"] = {ignore = {""}}
+
+ignore = {
+  "212"
+}
