@@ -44,22 +44,21 @@ function M.attach_to_buf(command, client)
 
 			local winnr = M._postWriteRef[pluginBufnr].win
 
-			local winExists = false
-
-			for _, val in pairs(v.nvim_list_wins()) do
-				if val == winnr then
-					winExists = true
-					break
+			local function winExists()
+				for _, val in pairs(v.nvim_list_wins()) do
+					if val == winnr then
+						return true
+					end
 				end
 			end
 
-			if not winExists then
+
+			if not winExists() then
 				vim.cmd([[vsplit]])
 				winnr = v.nvim_get_current_win()
 				v.nvim_win_set_buf(winnr, pluginBufnr)
 				v.nvim_win_set_option(winnr, "winfixwidth", true)
 				v.nvim_win_set_width(winnr, 40)
-				winExists = true
 			end
 
 			local handleStdout = function(_, data)
