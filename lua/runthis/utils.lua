@@ -1,23 +1,24 @@
 local v = vim.api
+local M = {}
 
 -- local state to save references
-local _postWriteRef = {
+M._postWriteRef = {
 	-- {buf[n]} = {
 	--   win = number,
-	--   client = number
+	--   client = string{e.g "test.lua"}
 	-- },
 }
 
 local function bufExists(name)
-	for _, buf in pairs(_postWriteRef) do
+	for _, buf in pairs(M._postWriteRef) do
 		if buf.client == name then
 			return true
 		end
 	end
 end
 
-local attach_to_buf = function(command, client, clientBuf)
-	local name, path = client.name, "/" .. client.path
+function M.attach_to_buf(command, client)
+	local clientBuf, path, name = client.buf, "/" .. client.data.path, client.data.name
 
 	local auGroup = v.nvim_create_augroup("AutoRun " .. name, { clear = true })
 
@@ -29,19 +30,19 @@ local attach_to_buf = function(command, client, clientBuf)
 
 			if not bufExists(name) then
 				local newBuf = v.nvim_create_buf(true, true)
-				_postWriteRef[newBuf] = {}
+				M._postWriteRef[newBuf] = {}
 				pluginBufnr = newBuf
 				local clientFT = v.nvim_buf_get_option(clientBuf, "filetype")
 				v.nvim_buf_set_option(pluginBufnr, "filetype", clientFT)
 			else
-				for buffer, content in pairs(_postWriteRef) do
+				for buffer, content in pairs(M._postWriteRef) do
 					if name == content.client then
 						pluginBufnr = buffer
 					end
 				end
 			end
 
-			local winnr = _postWriteRef[pluginBufnr].win
+			local winnr = M._postWriteRef[pluginBufnr].win
 
 			local winExists = false
 
@@ -83,7 +84,7 @@ local attach_to_buf = function(command, client, clientBuf)
 			})
 
 			-- Save the state for this buf
-			_postWriteRef[pluginBufnr] = {
+			M._postWriteRef[pluginBufnr] = {
 				win = winnr,
 				client = name,
 			}
@@ -91,4 +92,16 @@ local attach_to_buf = function(command, client, clientBuf)
 		pattern = name,
 	})
 end
-return attach_to_buf
+
+function M.detach_buf(name)
+	local bufTarget
+	for buf, content in pairs(M._postWriteRef) do
+		if content.client == name then
+			bufTarget = buf
+		end
+	end
+	v.nvim_del_augroup_by_name("AutoRun " .. name)
+	v.nvim_buf_delete(bufTarget, { force = true })
+	M._postWriteRef[bufTarget] = nil
+end
+return M
