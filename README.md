@@ -1,7 +1,7 @@
 # runthis.nvim
 automatically run code on save and see the output inside neovim :)
 
-install it with ur favorite plugin manager
+install it with your favorite plugin manager
 ```
 use{"RimuhRimu/runthis.nvim"} //example with packer
 ```
