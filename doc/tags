@@ -1,0 +1,4 @@
+runthis	runthis.txt	/*runthis*
+runthis.attach_to_buf	runthis.txt	/*runthis.attach_to_buf*
+runthis.detach_buf	runthis.txt	/*runthis.detach_buf*
+runthis.prompt	runthis.txt	/*runthis.prompt*

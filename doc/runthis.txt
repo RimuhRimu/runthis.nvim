@@ -1,0 +1,41 @@
+================================================================================
+                                                                      *runthis*
+
+This plugin allows you to run code on a buffer and see the output inside neovim
+there are only two commands
+
+                                                        *runthis.attach_to_buf*
+
+runthis.attach_to_buf({command},{client})
+
+When invoked detects changes on save of the given {client} and executes the
+{command} over the saved buffer and displays the resut on a :vsplit buffer
+
+{command} <- string, can be a whole command e.g "deno run" don't add the
+filepath
+
+{client} <- a table with the following fields 
+
+>
+  client = {
+    buf = {number of the buffer, see :ls}
+    data = {
+      name = {string, name of the file},
+      path = {string, whole path to the file}
+    }
+  }
+<
+                                                           *runthis.detach_buf*
+
+runthis.detach_buf({name})
+
+Stops running the given buffer {name} <- string, see :ls |
+
+                                                                *runthis.prompt*
+
+runthis.prompt({task})
+
+Asks a {task} that could be either "attach" or "detach", it is "attach" by
+default if no {task} were provided
+
+vim:tw=78:ts=8:ft=help:norl:
