@@ -4,6 +4,7 @@ local fn = vim.fn
 
 local utils = require("runthis.utils")
 
+-- TODO: rewrite prompt to allow autocompletion foe path and commands
 -- local state to save references
 M._postWriteRef = {
 	-- {buf[n]} = {
@@ -102,7 +103,8 @@ function M.detach_buf(name)
 	M._postWriteRef[bufTarget] = nil
 end
 
-function M.prompt(task)
+function M.prompt(t)
+	local task = t.args
 	local bufList = utils.getBufList()
 	local bufTextList = utils.getBufListText(bufList)
 	local bufTarget = vim.fn.input({

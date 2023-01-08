@@ -31,3 +31,6 @@ you can stop executing on save with
 ```
 
 ![sh1](./screenshots/sh1.png) 
+
+## NOTE
+It still doesn't work quite well with compiled languages, I'll rewrite this probably to make it work though
