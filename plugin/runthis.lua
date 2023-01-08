@@ -1,7 +1,6 @@
 local v = vim.api
 local runthis = require("runthis")
 
-P(runthis)
 local function completion()
 	return { "attach", "detach" }
 end
