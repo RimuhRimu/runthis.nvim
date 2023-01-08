@@ -133,7 +133,6 @@ function M.prompt(t)
 	if #task == 0 then
 		task = "attach"
 	end
-	P({ t, type(task), task })
 	handlers[task]()
 end
 
