@@ -21,7 +21,7 @@ What buffer do you choose?: ... //you'll be shown the buffers currently open
 3. {buf3}
 ...
 
-What command should be executed?(whole command with options): ...
+What command should be executed?(whole command with options): ... //if left empty it will use the shebang in the file
 ```
 now when you save that buffer you'll see a split buffer with the results
 
