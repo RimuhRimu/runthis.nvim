@@ -58,4 +58,15 @@ function M.toTable(str)
 	return t
 end
 
+-- TODO: make possible compile and see output for compiled languages
+M.runAbles = {
+	["py"] = { "python3", "python2", "python" },
+	["js"] = { "node", "deno run" },
+	["lua"] = { "lua" },
+	["hs"] = { "runhaskell", "ghc" },
+	["ts"] = { "deno run" },
+	["sh"] = { "bash", "sh" },
+	["fish"] = { "fish" },
+}
+
 return M
