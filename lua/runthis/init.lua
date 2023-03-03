@@ -5,7 +5,7 @@ local fn = vim.fn
 local utils = require("runthis.utils")
 
 -- TODO: rewrite prompt to allow autocompletion for path and commands
--- TODO: check if the file name changed
+-- TODO: track if the name of the file changes
 -- local state to save references
 M._postWriteRef = {
 	-- {buf[n]} = {
@@ -65,16 +65,33 @@ function M.attach_to_buf(command, client)
 				v.nvim_win_set_width(winnr, 40)
 			end
 
+			-- case empty command use the shebang
+			local finalCommand = command
+			local useShebang = false
+			if #command == 0 then
+				finalCommand = v.nvim_buf_get_lines(clientBuf, 0, 1, true)[1]:sub(3, -1)
+				useShebang = true
+			end
+
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
-					table.insert(data, 1, ("Running %s on '%s'"):format(command, name))
+					local formatCommand = finalCommand
+
+					-- Remove the shebang command
+					-- e.g /usr/bin/env python3 -> python3
+					if useShebang then
+						formatCommand = finalCommand:sub(finalCommand:find(" ") + 1, -1)
+					end
+
+					-- Write to the plugin buffer the following
+					table.insert(data, 1, ("Running { %s } on file -> '%s'"):format(formatCommand, name))
 					table.insert(data, 2, "-")
 					table.insert(data, 2, " ")
 					v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, data)
 				end
 			end
 
-			fn.jobstart(utils.toTable(command .. " " .. path), {
+			fn.jobstart(utils.toTable(finalCommand .. " " .. path), {
 				stdout_buffered = true,
 				on_stdout = handleStdout,
 				on_stderr = handleStdout,
@@ -106,12 +123,15 @@ end
 
 function M.prompt(t)
 	local task = t.args
+	if #task == 0 then
+		task = "attach"
+	end
 	local selectedBuf
 	local bufList = utils.getBufList()
 
 	-- case just 1 buf open that one else ask what buf
 	if utils.tableLength(bufList) == 1 then
-		selectedBuf = utils.pickFirstKey(bufList)
+		selectedBuf = next(bufList)
 	else
 		local bufTextList = utils.getBufListText(bufList)
 		local bufTarget = vim.fn.input({
@@ -131,16 +151,15 @@ function M.prompt(t)
 	local client = { buf = selectedBuf, data = bufList[selectedBuf] }
 	local handlers = {
 		["attach"] = function()
-			local command = vim.fn.input("What command should be executed?(whole command with options): ")
+			local command = vim.fn.input(
+				"What command should be executed?(whole command with options, leave empty to use shebang): "
+			)
 			M.attach_to_buf(command, client)
 		end,
 		["detach"] = function()
 			M.detach_buf(client.data.name)
 		end,
 	}
-	if #task == 0 then
-		task = "attach"
-	end
 	handlers[task]()
 end
 

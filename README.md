@@ -34,3 +34,9 @@ you can stop executing on save with
 
 ## NOTE
 It still doesn't work quite well with compiled languages, I'll rewrite this probably to make it work though
+
+## TODO
+
+- [ ] rewrite prompt to allow autocompletion for path and commands
+- [ ] track if the name of the file changes
+- [ ] add a `attach/detach current` command

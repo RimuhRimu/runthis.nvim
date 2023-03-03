@@ -49,12 +49,6 @@ function M.tableLength(T)
 	return count
 end
 
-function M.pickFirstKey(T)
-	for k, _ in pairs(T) do
-		return k
-	end
-end
-
 function M.toTable(str)
 	local t, i = {}, 1
 	for param in string.gmatch(str, "%g+") do
