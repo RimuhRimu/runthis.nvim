@@ -65,15 +65,25 @@ function M.attach_to_buf(command, client)
 				v.nvim_win_set_width(winnr, 40)
 			end
 
-			-- case empty command use the shebang
 			local finalCommand = command
 			local useShebang = false
-			if #command == 0 then
-				finalCommand = v.nvim_buf_get_lines(clientBuf, 0, 1, true)[1]:sub(3, -1)
+			local firstLine = v.nvim_buf_get_lines(clientBuf, 0, 1, true)[1]
+			-- case empty command check if shebang exists
+			if #command == 0 and firstLine:sub(1, 2) == "#!" then
+				finalCommand = firstLine:sub(3, -1)
 				useShebang = true
+			-- otherwise try to find a possible executable
+			else
+				local Cname = client.data.name
+				local extension = Cname:sub(-Cname:reverse():find("%.") + 1, -1)
+				-- TODO: check if the program exists instead of just the first
+				if utils.runAbles[extension] then
+					finalCommand = utils.runAbles[extension][1]
+				-- TODO: show a message tha says theres not an executable for this file
+				else
+					finalCommand = "echo"
+				end
 			end
-
-			print(finalCommand)
 
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
