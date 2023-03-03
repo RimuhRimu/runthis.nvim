@@ -66,13 +66,11 @@ function M.attach_to_buf(command, client)
 			end
 
 			-- case empty command use the shebang
-			local finalCommand
+			local finalCommand = command
 			local useShebang = false
 			if #command == 0 then
 				finalCommand = v.nvim_buf_get_lines(clientBuf, 0, 1, true)[1]:sub(3, -1)
 				useShebang = true
-			else
-				finalCommand = command
 			end
 
 			local handleStdout = function(_, data)
