@@ -69,7 +69,7 @@ function M.attach_to_buf(command, client)
 			local useShebang = false
 			local firstLine = v.nvim_buf_get_lines(clientBuf, 0, 1, true)[1]
 			-- case empty command check if shebang exists
-			if #command == 0 and firstLine:sub(1, 2) == "#!" then
+			if #finalCommand == 0 and firstLine:sub(1, 2) == "#!" then
 				finalCommand = firstLine:sub(3, -1)
 				useShebang = true
 			-- otherwise try to find a possible executable
