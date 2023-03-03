@@ -73,6 +73,8 @@ function M.attach_to_buf(command, client)
 				useShebang = true
 			end
 
+			print(finalCommand)
+
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
 					local formatCommand = finalCommand
@@ -80,7 +82,8 @@ function M.attach_to_buf(command, client)
 					-- Remove the shebang command
 					-- e.g /usr/bin/env python3 -> python3
 					if useShebang then
-						formatCommand = finalCommand:sub(finalCommand:find(" ") + 1, -1)
+						formatCommand = finalCommand:sub((finalCommand:find(" ") or 0) + 1, -1)
+							or finalCommand:sub(finalCommand:find("") + 1, -1)
 					end
 
 					-- Write to the plugin buffer the following
