@@ -87,17 +87,14 @@ function M.attach_to_buf(command, client)
 
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
-					local formatCommand = finalCommand
-
 					-- Remove the shebang command
 					-- e.g /usr/bin/env python3 -> python3
 					if useShebang then
-						formatCommand = finalCommand:sub((finalCommand:find(" ") or 0) + 1, -1)
-							or finalCommand:sub(finalCommand:find("") + 1, -1)
+						finalCommand = finalCommand:sub((finalCommand:find(" ") or 0) + 1, -1)
 					end
 
 					-- Write to the plugin buffer the following
-					table.insert(data, 1, ("Running { %s } on file -> '%s'"):format(formatCommand, name))
+					table.insert(data, 1, ("Running { %s } on file -> '%s'"):format(finalCommand, name))
 					table.insert(data, 2, "-")
 					table.insert(data, 2, " ")
 					v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, data)
