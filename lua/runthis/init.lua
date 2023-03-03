@@ -131,7 +131,7 @@ function M.prompt(t)
 
 	-- case just 1 buf open that one else ask what buf
 	if utils.tableLength(bufList) == 1 then
-		selectedBuf = utils.pickFirstKey(bufList)
+		selectedBuf = next(bufList)
 	else
 		local bufTextList = utils.getBufListText(bufList)
 		local bufTarget = vim.fn.input({
