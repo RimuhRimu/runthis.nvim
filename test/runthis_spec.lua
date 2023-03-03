@@ -1,4 +1,3 @@
---[[ local v = vim.api ]]
 local commands = {
 	js = "node",
 	python = "python3",

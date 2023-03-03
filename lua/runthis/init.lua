@@ -4,7 +4,8 @@ local fn = vim.fn
 
 local utils = require("runthis.utils")
 
--- TODO: rewrite prompt to allow autocompletion foe path and commands
+-- TODO: rewrite prompt to allow autocompletion for path and commands
+-- TODO: check if the file name changed
 -- local state to save references
 M._postWriteRef = {
 	-- {buf[n]} = {
@@ -105,21 +106,28 @@ end
 
 function M.prompt(t)
 	local task = t.args
-	local bufList = utils.getBufList()
-	local bufTextList = utils.getBufListText(bufList)
-	local bufTarget = vim.fn.input({
-		prompt = "What buffer do you choose?: " .. bufTextList .. "\n",
-	})
-
 	local selectedBuf
-	local i = 0
-	for bufNum, _ in pairs(bufList) do
-		i = i + 1
-		if i == tonumber(bufTarget) then
-			selectedBuf = bufNum
-			break
+	local bufList = utils.getBufList()
+
+	-- case just 1 buf open that one else ask what buf
+	if utils.tableLength(bufList) == 1 then
+		selectedBuf = utils.pickFirstKey(bufList)
+	else
+		local bufTextList = utils.getBufListText(bufList)
+		local bufTarget = vim.fn.input({
+			prompt = "What buffer do you choose?: " .. bufTextList .. "\n",
+		})
+
+		local i = 0
+		for bufNum, _ in pairs(bufList) do
+			i = i + 1
+			if i == tonumber(bufTarget) then
+				selectedBuf = bufNum
+				break
+			end
 		end
 	end
+
 	local client = { buf = selectedBuf, data = bufList[selectedBuf] }
 	local handlers = {
 		["attach"] = function()

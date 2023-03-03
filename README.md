@@ -9,7 +9,7 @@ use{"RimuhRimu/runthis.nvim"} //example with packer
 ## Usage
 execute in command mode
 ```
-:RunThis or :Runthis attach
+:RunThis or :Runthis attach //will auto run the current buf if just 1 open
 ```
 
 you'll be prompted the following
