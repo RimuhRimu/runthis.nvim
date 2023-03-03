@@ -40,3 +40,4 @@ It still doesn't work quite well with compiled languages, I'll rewrite this prob
 - [ ] rewrite prompt to allow autocompletion for path and commands
 - [ ] track if the name of the file changes
 - [ ] add a `attach/detach current` command
+- [ ] add configs to change the size of the plugin buffer, etc...
