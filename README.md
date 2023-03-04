@@ -35,7 +35,7 @@ you can stop executing on save with
 :Runthis detach //you'll be asked what buffer you want to detach
 ```
 
-## CONFIG
+## Config
 
 you can change the default size of the window or the default programs to run certain
 extensions if you do not provide a command or it does not have a shebang
