@@ -58,15 +58,42 @@ function M.toTable(str)
 	return t
 end
 
--- TODO: make possible compile and see output for compiled languages
-M.runAbles = {
-	["py"] = { "python3", "python2", "python" },
-	["js"] = { "node", "deno run" },
-	["lua"] = { "lua" },
-	["hs"] = { "runhaskell", "ghc" },
-	["ts"] = { "deno run" },
-	["sh"] = { "bash", "sh" },
-	["fish"] = { "fish" },
-}
+function M.parseCommand(client, command, runAbles)
+	local auxCommand = command
+	local useShebang = false
+	local firstLine = v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]
+	local Cname = client.data.name
+	local extension = Cname:sub(-Cname:reverse():find("%.") + 1, -1)
+	-- case empty command check if shebang exists
+	if #auxCommand == 0 and firstLine:sub(1, 2) == "#!" then
+		auxCommand = firstLine:sub(3, -1)
+		useShebang = true
+	-- otherwise try to find a possible executable
+	elseif runAbles[extension] then
+		local runable = runAbles[extension]
+		-- TODO: check if the program exists instead of just using the first
+		auxCommand = runable
+	else
+		-- TODO: show a message tha says theres not an executable for this file
+		auxCommand = "echo"
+	end
+	return auxCommand, useShebang
+end
+
+function M.bufExists(name, ref)
+	for _, buf in pairs(ref) do
+		if buf.client == name then
+			return true
+		end
+	end
+end
+
+function M.winExists(winnr)
+	for _, val in pairs(v.nvim_list_wins()) do
+		if val == winnr then
+			return true
+		end
+	end
+end
 
 return M
