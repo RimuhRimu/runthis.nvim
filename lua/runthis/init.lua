@@ -3,7 +3,6 @@ local v = vim.api
 local fn = vim.fn
 
 local utils = require("runthis.utils")
-local log = require("runthis.log")
 local stateModule = require("runthis.state")
 local state = stateModule.REF
 
