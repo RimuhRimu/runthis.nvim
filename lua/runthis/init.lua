@@ -45,7 +45,7 @@ function M.setup(opts)
 end
 
 function M.attach_to_buf(command, client)
-	local clientBuf, path, name = client.buf, "/" .. client.data.path, client.data.name
+	local clientBuf, name = client.buf, client.data.name
 
 	local auGroup = v.nvim_create_augroup("AutoRun " .. name, { clear = true })
 

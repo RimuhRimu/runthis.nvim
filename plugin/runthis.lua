@@ -4,8 +4,8 @@ local completionSource = {
 	[""] = { "attach", "detach" },
 	primary = {},
 }
-local function completion(leadArg, CmdLine, cursorPos)
-	local hasSpace = string.match(CmdLine, "%s$")
+local function completion(_, CmdLine, _)
+	-- local hasSpace = string.match(CmdLine, "%s$")
 	local params = vim.split(CmdLine, "%s+", { trimempty = true })
 	if #params == 1 then
 		return completionSource[""]
