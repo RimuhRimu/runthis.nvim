@@ -60,24 +60,36 @@ end
 
 function M.parseCommand(client, command, runAbles)
 	local auxCommand = command
-	local useShebang = false
 	local firstLine = v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]
 	local Cname = client.data.name
 	local extension = Cname:sub(-Cname:reverse():find("%.") + 1, -1)
 	-- case empty command check if shebang exists
 	if #auxCommand == 0 and firstLine:sub(1, 2) == "#!" then
 		auxCommand = firstLine:sub(3, -1)
-		useShebang = true
+		-- Remove the shebang command
+		-- e.g /usr/bin/env python3 -> python3
+		auxCommand = auxCommand:sub((auxCommand:find(" ") or 0) + 1, -1)
 	-- otherwise try to find a possible executable
 	elseif runAbles[extension] then
 		local runable = runAbles[extension]
-		-- TODO: check if the program exists instead of just using the first
 		auxCommand = runable
 	else
-		-- TODO: show a message tha says theres not an executable for this file
-		auxCommand = "echo"
+		return "echo 'No executable found for this file'"
 	end
-	return auxCommand, useShebang
+
+	-- Apply the compiling phase if needed
+	if extension == "java" then
+		vim._system(("javac %s"):format(Cname))
+		return auxCommand .. " " .. Cname:sub(1, Cname:find(".java") - 1)
+	elseif extension == "c" or extension == "cpp" then
+		vim._system(("clang %s -o %s"):format(Cname, "main"))
+		return auxCommand
+	elseif extension == "rs" then
+		vim._system(("rustc -C linker=clang %s"):format(Cname))
+		return "./" .. Cname:sub(1, Cname:find(".rs") - 1)
+	end
+
+	return auxCommand .. " " .. Cname
 end
 
 function M.bufExists(name, ref)

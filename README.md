@@ -73,6 +73,8 @@ local defaults = {
 }
 ```
 
+# Preview
+
 ![sh1](./screenshots/sh1.png) 
 
 ## NOTE

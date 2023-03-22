@@ -3,25 +3,27 @@ local v = vim.api
 local fn = vim.fn
 
 local utils = require("runthis.utils")
+local log = require("runthis.log")
+local stateModule = require("runthis.state")
+local state = stateModule.REF
 
--- TODO: rewrite prompt to allow autocompletion for path and commands
+-- BUG: if window closed and detached, when attaching again window not displayed
 -- TODO: track if the name of the file changes
--- local state to save references
-M._postWriteRef = {
-	-- {buf[n]} = {
-	--   win = number,
-	--   client = string{e.g "test.lua"}
-	-- },
-}
+-- TODO: maybe detect deno' tasks
 
--- TODO: make possible compile and see output for compiled languages
--- TODO: support more extensions
 local runAbles = {
 	["py"] = "python3",
 	["js"] = "node",
 	["lua"] = "lua",
 	["hs"] = "runhaskell",
-	["ts"] = "deno run",
+	["ts"] = "deno run --allow-net --allow-read --allow-write --allow-env --unstable",
+	["tsx"] = "deno run --allow-net --allow-read --allow-write --allow-env --unstable",
+	["go"] = "go run",
+	["rb"] = "ruby",
+	["rs"] = "",
+	["c"] = "./main",
+	["cpp"] = "./main",
+	["java"] = "java",
 	["sh"] = "sh",
 	["fish"] = "fish",
 }
@@ -54,21 +56,21 @@ function M.attach_to_buf(command, client)
 		callback = function()
 			local pluginBufnr
 
-			if not utils.bufExists(name, M._postWriteRef) then
+			if not utils.bufExists(name, state) then
 				local newBuf = v.nvim_create_buf(true, true)
-				M._postWriteRef[newBuf] = {}
+				state[newBuf] = {}
 				pluginBufnr = newBuf
 				local clientFT = v.nvim_buf_get_option(clientBuf, "filetype")
 				v.nvim_buf_set_option(pluginBufnr, "filetype", clientFT)
 			else
-				for buffer, content in pairs(M._postWriteRef) do
+				for buffer, content in pairs(state) do
 					if name == content.client then
 						pluginBufnr = buffer
 					end
 				end
 			end
 
-			local winnr = M._postWriteRef[pluginBufnr].win
+			local winnr = state[pluginBufnr].win
 
 			if not utils.winExists(winnr) then
 				vim.cmd([[vsplit]])
@@ -78,16 +80,10 @@ function M.attach_to_buf(command, client)
 				v.nvim_win_set_width(winnr, defaults.winConf.width)
 			end
 
-			local finalCommand, useShebang = utils.parseCommand(client, command, runAbles)
+			local finalCommand = utils.parseCommand(client, command, runAbles)
 
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
-					-- Remove the shebang command
-					-- e.g /usr/bin/env python3 -> python3
-					if useShebang then
-						finalCommand = finalCommand:sub((finalCommand:find(" ") or 0) + 1, -1)
-					end
-
 					-- Write to the plugin buffer the following
 					table.insert(data, 1, ("Running { %s } on file -> '%s'"):format(finalCommand, name))
 					table.insert(data, 2, "-")
@@ -96,16 +92,18 @@ function M.attach_to_buf(command, client)
 				end
 			end
 
-			fn.jobstart(utils.toTable(finalCommand .. " " .. path), {
+			v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, { "🔎 Loading your File, please wait... " })
+
+			fn.jobstart(utils.toTable(finalCommand), {
 				stdout_buffered = true,
 				on_stdout = handleStdout,
-				--[[ on_stderr = handleStdout, ]]
+				on_stderr = handleStdout,
 				-- INFO: solves deno color characters not being parsed
 				env = { NO_COLOR = true },
 			})
 
 			-- Save the state for this buf
-			M._postWriteRef[pluginBufnr] = {
+			state[pluginBufnr] = {
 				win = winnr,
 				client = name,
 			}
@@ -116,14 +114,14 @@ end
 
 function M.detach_buf(name)
 	local bufTarget
-	for buf, content in pairs(M._postWriteRef) do
+	for buf, content in pairs(state) do
 		if content.client == name then
 			bufTarget = buf
 		end
 	end
 	v.nvim_del_augroup_by_name("AutoRun " .. name)
 	v.nvim_buf_delete(bufTarget, { force = true })
-	M._postWriteRef[bufTarget] = nil
+	state[bufTarget] = nil
 end
 
 function M.prompt(t)
