@@ -60,7 +60,13 @@ local runAbles = {
 	["js"] = "node",
 	["lua"] = "lua",
 	["hs"] = "runhaskell",
-	["ts"] = "deno run",
+	["ts"] = "deno run --allow-net --allow-read --allow-write --allow-env --unstable",
+	["go"] = "go run",
+	["rb"] = "ruby",
+	["rs"] = "",
+	["c"] = "./main",
+	["cpp"] = "./main",
+	["java"] = "java",
 	["sh"] = "sh",
 	["fish"] = "fish",
 }
@@ -72,6 +78,8 @@ local defaults = {
 	},
 }
 ```
+
+# Preview
 
 ![sh1](./screenshots/sh1.png) 
 
@@ -86,4 +94,4 @@ local defaults = {
 - [ ] track if the name of the file changes
 - [ ] add a `attach/detach current` command
 - [x] add configs to change the size of the plugin buffer, default runables, etc...
-- [ ] make possible use the plugin easily with compiled languages
+- [x] make possible use the plugin easily with compiled languages
