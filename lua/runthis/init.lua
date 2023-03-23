@@ -10,13 +10,12 @@ local state = stateModule.REF
 -- TODO: track if the name of the file changes
 -- TODO: maybe detect deno' tasks
 
-local runAbles = {
+M.runAbles = {
 	["py"] = "python3",
 	["js"] = "node",
 	["lua"] = "lua",
 	["hs"] = "runhaskell",
 	["ts"] = "deno run --allow-net --allow-read --allow-write --allow-env --unstable",
-	["tsx"] = "deno run --allow-net --allow-read --allow-write --allow-env --unstable",
 	["go"] = "go run",
 	["rb"] = "ruby",
 	["rs"] = "",
@@ -27,20 +26,25 @@ local runAbles = {
 	["fish"] = "fish",
 }
 
-local defaults = {
-	runAbles = runAbles,
+M.defaults = {
+	runAbles = M.runAbles,
 	winConf = {
 		width = 40,
 	},
 }
 
 function M.setup(opts)
-	for extension, command in pairs(opts.programs) do
-		runAbles[extension] = command
+	opts = opts or {}
+	if opts.programs then
+		for extension, command in pairs(opts.programs) do
+			M.runAbles[extension] = command
+		end
 	end
 
-	if opts.window.width then
-		defaults.winConf.width = opts.window.width
+	if opts.winConf then
+		for option, value in pairs(opts.winConf) do
+			M.defaults.winConf[option] = value
+		end
 	end
 end
 
@@ -76,10 +80,10 @@ function M.attach_to_buf(command, client)
 				winnr = v.nvim_get_current_win()
 				v.nvim_win_set_buf(winnr, pluginBufnr)
 				v.nvim_win_set_option(winnr, "winfixwidth", true)
-				v.nvim_win_set_width(winnr, defaults.winConf.width)
+				v.nvim_win_set_width(winnr, M.defaults.winConf.width)
 			end
 
-			local finalCommand = utils.parseCommand(client, command, runAbles)
+			local finalCommand = utils.parseCommand(client, command, M.runAbles)
 
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
