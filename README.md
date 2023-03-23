@@ -85,7 +85,7 @@ local defaults = {
 
 ## NOTE
 
-1. It still doesn't work quite well with compiled languages, I'll rewrite this probably to make it work though
+1. I have to modify the plugin to allow change the compile process
 2. Obviously you cannot handle stdin using this plugin, at least not yet
 
 ## TODO
