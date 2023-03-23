@@ -88,4 +88,4 @@ local defaults = {
 - [ ] track if the name of the file changes
 - [ ] add a `attach/detach current` command
 - [x] add configs to change the size of the plugin buffer, default runables, etc...
-- [ ] make possible use the plugin easily with compiled languages
+- [x] make possible use the plugin easily with compiled languages
