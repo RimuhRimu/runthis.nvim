@@ -3,7 +3,7 @@ automatically run code on save and see the output inside neovim :)
 
 install it with your favorite plugin manager
 ```
-use{
+use {
   "RimuhRimu/runthis.nvim",
   module = "runthis"
   } //example with packer
@@ -56,6 +56,7 @@ these are the defaults
 
 ```lua
 local runAbles = {
+	-- rust, c, and c++ are treated differently due to the compile process
 	["py"] = "python3",
 	["js"] = "node",
 	["lua"] = "lua",
