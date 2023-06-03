@@ -55,7 +55,6 @@ function M.toTable(str)
 		t[i] = param
 		i = i + 1
 	end
-	P(t)
 	return t
 end
 

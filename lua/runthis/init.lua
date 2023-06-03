@@ -96,7 +96,6 @@ function M.attach_to_buf(command, client)
 			end
 
 			v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, { "🔎 Loading your File, please wait... " })
-			P(finalCommand .. " here")
 
 			fn.jobstart(utils.toTable(finalCommand), {
 				stdout_buffered = true,
