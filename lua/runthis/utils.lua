@@ -55,14 +55,15 @@ function M.toTable(str)
 		t[i] = param
 		i = i + 1
 	end
+	P(t)
 	return t
 end
 
 function M.parseCommand(client, command, runAbles)
 	local auxCommand = command
 	local firstLine = v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]
-	local Cname = client.data.name
-	local extension = Cname:sub(-Cname:reverse():find("%.") + 1, -1)
+	local absPath = "/" .. client.data.path
+	local extension = absPath:sub(-absPath:reverse():find("%.") + 1, -1)
 	-- case empty command check if shebang exists
 	if #auxCommand == 0 and firstLine:sub(1, 2) == "#!" then
 		auxCommand = firstLine:sub(3, -1)
@@ -79,17 +80,17 @@ function M.parseCommand(client, command, runAbles)
 
 	-- Apply the compiling phase if needed
 	if extension == "java" then
-		vim._system(("javac %s"):format(Cname))
-		return auxCommand .. " " .. Cname:sub(1, Cname:find(".java") - 1)
+		vim._system(("javac %s"):format(absPath))
+		return auxCommand .. " " .. absPath:sub(1, absPath:find(".java") - 1)
 	elseif extension == "c" or extension == "cpp" then
-		vim._system(("clang %s -o %s"):format(Cname, "main"))
+		vim._system(("clang %s -o %s"):format(absPath, "main"))
 		return auxCommand
 	elseif extension == "rs" then
-		vim._system(("rustc -C linker=clang %s"):format(Cname))
-		return "./" .. Cname:sub(1, Cname:find(".rs") - 1)
+		vim._system(("rustc -C linker=clang %s"):format(absPath))
+		return "./" .. absPath:sub(1, absPath:find(".rs") - 1)
 	end
 
-	return auxCommand .. " " .. Cname
+	return auxCommand .. " " .. absPath, auxCommand
 end
 
 function M.bufExists(name, ref)

@@ -83,12 +83,12 @@ function M.attach_to_buf(command, client)
 				v.nvim_win_set_width(winnr, M.defaults.winConf.width)
 			end
 
-			local finalCommand = utils.parseCommand(client, command, M.runAbles)
+			local finalCommand, programCommand = utils.parseCommand(client, command, M.runAbles)
 
 			local handleStdout = function(_, data)
 				if data and table.concat(data) ~= "" then
 					-- Write to the plugin buffer the following
-					table.insert(data, 1, ("Running { %s } on file -> '%s'"):format(finalCommand, name))
+					table.insert(data, 1, ("Running { %s } on file -> '%s'"):format(programCommand, name))
 					table.insert(data, 2, "-")
 					table.insert(data, 3, " ")
 					v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, data)
@@ -96,6 +96,7 @@ function M.attach_to_buf(command, client)
 			end
 
 			v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, { "🔎 Loading your File, please wait... " })
+			P(finalCommand .. " here")
 
 			fn.jobstart(utils.toTable(finalCommand), {
 				stdout_buffered = true,
