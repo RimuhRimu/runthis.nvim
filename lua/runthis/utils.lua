@@ -1,6 +1,10 @@
 local M = {}
 local v = vim.api
 
+function M.getBufByWin(win)
+	return v.nvim_win_hide(win or 0)
+end
+
 function M.getBufList()
 	local bufList = {}
 	for _, buf in pairs(v.nvim_list_bufs()) do
