@@ -53,9 +53,16 @@ function M.tableLength(T)
 	return count
 end
 
-function M.toTable(str)
+-- Converts a string a table by splitting it into separate parameters.
+-- Each parameter consists of one or more printable (non-space)characters (%g+ by default).
+-- Parameters are stored in the table as separate elements.
+--
+--- @param str string input string to convert
+--- @param pattern? string optinal pattern
+--- @return table
+function M.toTable(str, pattern)
 	local t, i = {}, 1
-	for param in string.gmatch(str, "%g+") do
+	for param in string.gmatch(str, pattern or "%g+") do
 		t[i] = param
 		i = i + 1
 	end

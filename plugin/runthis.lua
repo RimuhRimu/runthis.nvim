@@ -2,7 +2,7 @@ local v = vim.api
 local runthis = require("runthis")
 local completionOptions = {
 	[""] = { "attach", "detach" },
-	["first"] = { "attach", "detach" },
+	["first"] = { "current" },
 	primary = {},
 }
 local function completion(ArgLead, CmdLine, CursorPos)
