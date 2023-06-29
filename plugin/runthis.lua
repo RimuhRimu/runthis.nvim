@@ -6,9 +6,7 @@ local completionOptions = {
 	primary = {},
 }
 local function completion(ArgLead, CmdLine, CursorPos)
-	-- local hasSpace = string.match(CmdLine, "%s$")
 	local params = vim.split(CmdLine, "%s+", { trimempty = true })
-	P(params)
 	if params[2] == "attach" or params[2] == "detach" then
 		return completionOptions["first"]
 	elseif params[1] == "RunThis" and #params <= 2 then
