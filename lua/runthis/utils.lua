@@ -1,6 +1,7 @@
 local M = {}
 local v = vim.api
 
+--- @return table
 function M.getBufList()
 	local bufList = {}
 	for _, buf in pairs(v.nvim_list_bufs()) do
@@ -31,6 +32,13 @@ function M.getBufList()
 	return bufList
 end
 
+-- Parses the current buffers opened
+-- like this:
+-- 1. buf1name
+-- 2. buf2name
+-- 3. ...
+--- @param bufList table
+--- @return string
 function M.getBufListText(bufList)
 	local text = ""
 	local i = 0
@@ -41,23 +49,23 @@ function M.getBufListText(bufList)
 	return text
 end
 
-function M.tableLength(T)
-	local count = 0
-	for _ in pairs(T) do
-		count = count + 1
-	end
-	return count
-end
-
-function M.toTable(str)
+-- Converts a string a table by splitting it into separate parameters.
+-- Each parameter consists of one or more printable (non-space)characters (%g+ by default).
+-- Parameters are stored in the table as separate elements.
+--
+--- @param str string input string to convert
+--- @param pattern? string optinal pattern
+--- @return table
+function M.toTable(str, pattern)
 	local t, i = {}, 1
-	for param in string.gmatch(str, "%g+") do
+	for param in string.gmatch(str, pattern or "%g+") do
 		t[i] = param
 		i = i + 1
 	end
 	return t
 end
 
+--- @return string command, string? origialCommand What will be ran on the file
 function M.parseCommand(client, command, runAbles)
 	local auxCommand = command
 	local firstLine = v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]

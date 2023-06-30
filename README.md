@@ -82,7 +82,7 @@ local defaults = {
 
 # Preview
 
-![sh1](./screenshots/sh1.png) 
+![sh1](https://github.com/RimuhRimu/runthis.nvim/assets/68438095/abd469fd-21fe-47dc-b864-388877d1b9b8)
 
 ## NOTE
 

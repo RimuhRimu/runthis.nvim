@@ -59,6 +59,7 @@ function M.attach_to_buf(command, client)
 		callback = function()
 			local pluginBufnr
 
+			-- Case there's no plugin buf, create a new one
 			if not utils.bufExists(name, state) then
 				local newBuf = v.nvim_create_buf(true, true)
 				state[newBuf] = {}
@@ -75,6 +76,7 @@ function M.attach_to_buf(command, client)
 
 			local winnr = state[pluginBufnr].win
 
+			-- The same with the window
 			if not utils.winExists(winnr) then
 				vim.cmd([[vsplit]])
 				winnr = v.nvim_get_current_win()
@@ -95,6 +97,7 @@ function M.attach_to_buf(command, client)
 				end
 			end
 
+			-- Write this while it is still loading or whatever is doing
 			v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, { "🔎 Loading your File, please wait... " })
 
 			fn.jobstart(utils.toTable(finalCommand), {
@@ -129,15 +132,15 @@ end
 
 function M.prompt(t)
 	local task = t.args
-	if #task == 0 then
-		task = "attach"
-	end
+	-- Split by whitespaces
+	local Ttask = utils.toTable(task, "%S+")
+	-- Case no arguments, then attach
 	local selectedBuf
 	local bufList = utils.getBufList()
 
-	-- case just 1 buf open that one, else ask what buf
-	if utils.tableLength(bufList) == 1 then
-		selectedBuf = next(bufList)
+	-- Case just 1 buf opened or task is current, run the current one, else ask what buf
+	if #bufList == 1 or Ttask[2] == "current" then
+		selectedBuf = vim.api.nvim_get_current_buf()
 	else
 		local bufTextList = utils.getBufListText(bufList)
 		local bufTarget = vim.fn.input({
@@ -166,7 +169,7 @@ function M.prompt(t)
 			M.detach_buf(client.data.name)
 		end,
 	}
-	handlers[task]()
+	handlers[Ttask[1] or "attach"]()
 end
 
 return M
