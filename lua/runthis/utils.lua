@@ -65,39 +65,45 @@ function M.toTable(str, pattern)
 	return t
 end
 
---- @return string command, string? origialCommand What will be ran on the file
-function M.parseCommand(client, command, runAbles)
-	local auxCommand = command
-	local firstLine = v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]
-	local absPath = "/" .. client.data.path
-	local extension = absPath:sub(-absPath:reverse():find("%.") + 1, -1)
-	-- case empty command check if shebang exists
-	if #auxCommand == 0 and firstLine:sub(1, 2) == "#!" then
-		auxCommand = firstLine:sub(3, -1)
-		-- Remove the shebang command
-		-- e.g /usr/bin/env python3 -> python3
-		auxCommand = auxCommand:sub((auxCommand:find(" ") or 0) + 1, -1)
-	-- otherwise try to find a possible executable
-	elseif runAbles[extension] then
-		local runable = runAbles[extension]
-		auxCommand = runable
-	else
-		return "echo 'No executable found for this file'"
-	end
-
-	-- Apply the compiling phase if needed
-	if extension == "java" then
+local compilers = {
+	java = function(absPath)
 		vim._system(("javac %s"):format(absPath))
-		return auxCommand .. " " .. absPath:sub(1, absPath:find(".java") - 1)
-	elseif extension == "c" or extension == "cpp" then
+		return "./" .. absPath:sub(1, absPath:find(".java") - 1)
+	end,
+	c = function(absPath)
 		vim._system(("clang %s -o %s"):format(absPath, "main"))
-		return auxCommand
-	elseif extension == "rs" then
+		return "./main"
+	end,
+	cpp = function(absPath)
+		vim._system(("clang %s -o %s"):format(absPath, "main"))
+		return "./main"
+	end,
+	rs = function(absPath)
 		vim._system(("rustc -C linker=clang %s"):format(absPath))
 		return "./" .. absPath:sub(1, absPath:find(".rs") - 1)
+	end,
+}
+
+--- @return string command, string? origialCommand What will be ran on the file
+function M.parseCommand(client, command, runAbles)
+	local absPath = "/" .. client.data.path
+	local extension = absPath:sub(-absPath:reverse():find("%.") + 1, -1)
+
+	if #command == 0 then
+		if v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]:sub(1, 2) == "#!" then
+			command = v.nvim_buf_get_lines(client.buf, 0, 1, true)[1]:sub(3, -1)
+		elseif not runAbles[extension] then
+			return "echo 'No executable found for this file'"
+		else
+			command = runAbles[extension]
+		end
 	end
 
-	return auxCommand .. " " .. absPath, auxCommand
+	if compilers[extension] then
+		return compilers[extension](absPath), command
+	else
+		return command .. " " .. absPath, command
+	end
 end
 
 function M.bufExists(name, ref)

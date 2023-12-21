@@ -6,10 +6,6 @@ local utils = require("runthis.utils")
 local stateModule = require("runthis.state")
 local state = stateModule.REF
 
--- BUG: if window closed and detached, when attaching again window not displayed
--- TODO: track if the name of the file changes
--- TODO: maybe detect deno' tasks
-
 M.runAbles = {
 	["py"] = "python3",
 	["js"] = "node",
@@ -53,6 +49,13 @@ function M.attach_to_buf(command, client)
 
 	local auGroup = v.nvim_create_augroup("AutoRun " .. name, { clear = true })
 
+	v.nvim_create_autocmd({ "BufDelete" }, {
+		desc = "In case the buf is closed, the tracking will be closed too",
+		group = auGroup,
+		callback = function()
+			M.detach_buf(name)
+		end,
+	})
 	v.nvim_create_autocmd({ "BufWritePost" }, {
 		desc = "Creates a buffer to show what's executed on save for the given buf as client",
 		group = auGroup,
@@ -98,10 +101,17 @@ function M.attach_to_buf(command, client)
 			end
 
 			-- Write this while it is still loading or whatever is doing
-			v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, { "🔎 Loading your File, please wait... " })
+			v.nvim_buf_set_lines(pluginBufnr, 0, -1, false, {
+				"🔎 Loading your File, please wait...",
+				"if it hangs out here, check if you program really returns anything to stdout",
+			})
 
 			fn.jobstart(utils.toTable(finalCommand), {
 				stdout_buffered = true,
+				on_stdin = function(job_id, _)
+					local user_input = vim.fn.input("Enter input: ")
+					vim.fn.jobsend(job_id, user_input .. "\n")
+				end,
 				on_stdout = handleStdout,
 				on_stderr = handleStdout,
 				-- INFO: solves deno color characters not being parsed
@@ -111,7 +121,8 @@ function M.attach_to_buf(command, client)
 			-- Save the state for this buf
 			state[pluginBufnr] = {
 				win = winnr,
-				client = name,
+				-- file = v.nvim_buf_get_name(clientBuf), -- Store the file name
+				client = vim.fn.fnamemodify(v.nvim_buf_get_name(clientBuf), ":t"),
 			}
 		end,
 		pattern = name,
@@ -134,7 +145,6 @@ function M.prompt(t)
 	local task = t.args
 	-- Split by whitespaces
 	local Ttask = utils.toTable(task, "%S+")
-	-- Case no arguments, then attach
 	local selectedBuf
 	local bufList = utils.getBufList()
 

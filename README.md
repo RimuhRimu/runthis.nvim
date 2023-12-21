@@ -10,9 +10,10 @@ use {
 ```
 
 ## Usage
-execute in command mode
+execute in command mode or add your custom key map
 ```
 :RunThis or :Runthis attach //will auto run the current buf if just 1 open
+
 ```
 
 you'll be prompted the following
@@ -86,13 +87,7 @@ local defaults = {
 
 ## NOTE
 
-1. I have to modify the plugin to allow change the compile process
+1. I do not usually code with compiled languages so I don't think I'll tweak much the plugin for compiled languages,feel free to make pull requests
 2. Obviously you cannot handle stdin using this plugin, at least not yet
-
-## TODO
-
-- [ ] rewrite prompt to allow autocompletion for path and commands
-- [ ] track if the name of the file changes
-- [ ] add a `attach/detach current` command
-- [x] add configs to change the size of the plugin buffer, default runables, etc...
-- [x] make possible use the plugin with compiled languages
+3. If you want to run code selection you can use the built-in method
+`vim.api.nvim_set_keymap('v', '<leader>r', ':w !python3<CR>', {noremap = true})`
