@@ -87,8 +87,7 @@ local defaults = {
 
 ## NOTE
 
-1. I do not usually code with compiled languages so I don't think I'll tweak much the plugin for compiled languages,feel free to make pull requests
-2. Obviously you cannot handle stdin using this plugin, at least not yet
-3. If you want to run code selection you can use the built-in method
+- Obviously you cannot handle stdin using this plugin, at least not yet
+- If you want to run code selection you can use the built-in method
 
 `vim.api.nvim_set_keymap('v', '<leader>r', ':w !python3<CR>', {noremap = true})`
