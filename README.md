@@ -35,6 +35,7 @@ you can stop executing on save with
 ```
 :Runthis detach //you'll be asked what buffer you want to detach
 ```
+you can also use `:Runthis attach/detach current` to skip the selection part and just use the current buffer
 
 ## Config
 
